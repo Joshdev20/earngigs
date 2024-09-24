@@ -11,5 +11,8 @@ router.get('/', getAllTasks);                          // Get all tasks
 router.get('/:id', getTaskById);                       // Get a specific task
 router.put('/:id', authMiddleware, updateTask);        // Update a task
 router.delete('/:id', authMiddleware, deleteTask);     // Delete a task
+router.post('/create', TaskController.createTask);     // Route to create task
+router.get('/browse', TaskController.getTasks);        // Route to browse tasks with optional filters
+
 
 module.exports = router;
