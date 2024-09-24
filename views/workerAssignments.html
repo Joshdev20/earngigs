@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Assignments</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2 class="text-center">My Assignments</h2>
+    <div class="row" id="assignmentList">
+      <!-- Dynamically insert claimed tasks here -->
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      axios.get('/assignments/worker')
+        .then(response => {
+          const assignments = response.data;
+          const assignmentList = document.getElementById('assignmentList');
+          assignments.forEach(assignment => {
+            assignmentList.innerHTML += `
+              <div class="col-md-4">
+                <div class="card shadow-sm mb-4 hover-animate">
+                  <div class="card-body">
+                    <h5 class="card-title">Task ID: ${assignment.task_id}</h5>
+                    <p><strong>Status:</strong> ${assignment.status}</p>
+                    <button class="btn btn-success" onclick="updateStatus(${assignment.task_id}, 'in_progress')">Start</button>
+                    <button class="btn btn-warning" onclick="updateStatus(${assignment.task_id}, 'completed')">Complete</button>
+                  </div>
+                </div>
+              </div>`;
+          });
+        })
+        .catch(err => console.error(err));
+    });
+
+    function updateStatus(taskId, status) {
+      axios.put('/assignments/status', { task_id: taskId, status })
+        .then(response => alert('Status updated successfully'))
+        .catch(error => alert('Error updating status'));
+    }
+  </script>
+</body>
+</html>

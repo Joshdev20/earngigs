@@ -1,0 +1,24 @@
+<form action="/tasks/create" method="POST">
+    <div class="mb-3">
+      <label for="title" class="form-label">Task Title</label>
+      <input type="text" class="form-control" id="title" name="title" required>
+    </div>
+    <div class="mb-3">
+      <label for="description" class="form-label">Task Description</label>
+      <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="category" class="form-label">Category</label>
+      <select class="form-control" id="category" name="category">
+        <option>Design</option>
+        <option>Development</option>
+        <option>Marketing</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="budget" class="form-label">Budget</label>
+      <input type="number" class="form-control" id="budget" name="budget" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Task</button>
+  </form>
+  
