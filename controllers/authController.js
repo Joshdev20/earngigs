@@ -2,49 +2,68 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
-exports.register = async (req, res) => {
-  try {
-    const { name, email, password, role } = req.body;
+// Registration function
+exports.register = (req, res) => {
+  const { name, email, password, role } = req.body;
 
-    // Check if user exists
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).send('User already exists');
+  // Check if the user already exists
+  User.findByEmail(email, async (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).send('Server error');
+    }
+    if (result.length > 0) {
+      return res.status(400).send('User already exists');
+    }
 
-    // Hash the password
+    // Hash the password and create the user
     const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = { name, email, password: hashedPassword, role };
 
-    // Create the user
-    user = new User({ name, email, password: hashedPassword, role });
-    await user.save();
-
-    res.redirect('/login');
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).send('Server error');
-  }
+    User.create(newUser, (err) => {
+      if (err) {
+        console.error('Error creating user:', err);
+        return res.status(500).send('Server error');
+      }
+      res.status(201).send('User registered successfully'); // Use 201 status for successful creation
+    });
+  });
 };
 
+// Login function
 exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    // Find user
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).send('Invalid credentials');
+  // Find user
+  User.findByEmail(email, (err, result) => {
+    if (err) return res.status(500).send('Server error');
+    if (result.length === 0) return res.status(400).send('Invalid credentials');
+
+    const user = result[0];
 
     // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).send('Invalid credentials');
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if (err) return res.status(500).send('Server error');
+      if (!isMatch) return res.status(400).send('Invalid credentials');
 
-    // Generate JWT
-    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
+      // Generate JWT
+      const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, {
+        expiresIn: '1h',
+      });
+
+      res.cookie('token', token, { httpOnly: true });
+      res.status(200).send('Login successful'); // Send a success response
     });
+  });
+};
 
-    res.cookie('token', token, { httpOnly: true });
-    res.redirect('/dashboard');  // Redirect based on user role
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).send('Server error');
-  }
+// Logout function
+exports.logout = (req, res) => {
+  res.clearCookie('token');
+  res.status(200).send('Logout successful'); // Send a success response
+};
+
+// Check authentication status
+exports.checkAuthStatus = (req, res) => {
+  res.status(200).send('User is authenticated'); // Send a success response
 };

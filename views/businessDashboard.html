@@ -1,0 +1,8 @@
+<h1>Business Dashboard</h1>
+<ul>
+  <!-- Loop through tasks created by the business -->
+  <% tasks.forEach(task => { %>
+    <li><%= task.title %> - <%= task.status %></li>
+  <% }) %>
+</ul>
+<a href="/business/create-task">Create New Task</a>
