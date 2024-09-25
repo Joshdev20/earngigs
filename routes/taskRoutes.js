@@ -12,14 +12,10 @@ const {
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // Routes
-router.post('/', authMiddleware, createTask);          // Create a task
+router.post('/', authMiddleware, createTask);          // Create a task (requires authentication)
 router.get('/', getAllTasks);                          // Get all tasks
 router.get('/:id', getTaskById);                       // Get a specific task
-router.put('/:id', authMiddleware, updateTask);        // Update a task
-router.delete('/:id', authMiddleware, deleteTask);     // Delete a task
-
-// Remove the duplicate routes below
-// router.post('/create', TaskController.createTask);     // Route to create task
-// router.get('/browse', TaskController.getTasks);        // Route to browse tasks with optional filters
+router.put('/:id', authMiddleware, updateTask);        // Update a task (requires authentication)
+router.delete('/:id', authMiddleware, deleteTask);     // Delete a task (requires authentication)
 
 module.exports = router;
